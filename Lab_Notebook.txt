@@ -1,0 +1,178 @@
+SOFTWARE/PACKAGE VERSION: 
+    - Python: Version: 3.11.4
+    
+Demultiplexing and Index Swapping - Assignment the First
+-------------------------------------------------------------
+07/31/2023
+
+PART 1 - Quality Score Distribution per-nucleotide
+'Perform initial data exploration. Generate a per nucleotide mean distribution for
+read1, read2, index1, and index2. Plot each distribution (histogram).' 
+
+input: Talapas: /projects/bgmp/shared/2017_sequencing/
+1294_S1_L008_R1_001.fastq.gz
+1294_S1_L008_R2_001.fastq.gz
+1294_S1_L008_R3_001.fastq.gz
+1294_S1_L008_R4_001.fastq.gz
+
+1. data exploration: 
+    i. file information
+        | File name | label | Read length | Phred encoding |
+        |---|---|---|---|
+        | 1294_S1_L008_R1_001.fastq.gz | read 1 | 101 | Phred 33 |
+        | 1294_S1_L008_R2_001.fastq.gz | index 1 | 8 | Phred 33 |
+        | 1294_S1_L008_R3_001.fastq.gz | index 2 | 8 | Phred 33 |
+        | 1294_S1_L008_R4_001.fastq.gz | read 2 | 101 | Phred 33 |
+    
+    ii. Determine the read length for each file 
+        $ zcat 1294_S1_L008_R1_001.fastq.gz | head -2 | grep -v ^'@' | tr -d "\n" | wc -m
+        101
+
+        $ zcat 1294_S1_L008_R2_001.fastq.gz | head -2 | grep -v ^'@' | tr -d "\n" | wc -m
+        8
+
+        $ zcat 1294_S1_L008_R3_001.fastq.gz | head -2 | grep -v ^'@' | tr -d "\n" | wc -m
+        8
+
+        $ zcat 1294_S1_L008_R4_001.fastq.gz | head -2 | grep -v ^'@' | tr -d "\n" | wc -m
+        101
+    iii. Determine the phred encoding for these data
+        $ zcat 1294_S1_L008_R1_001.fastq.gz | head -4
+        @K00337:83:HJKJNBBXX:8:1101:1265:1191 1:N:0:1
+        GNCTGGCATTCCCAGAGACATCAGTACCCAGTTGGTTCAGACAGTTCCTCTATTGGTTGACAAGGTCTTCATTTCTAGTGATATCAACACGGTGTCTACAA
+        +
+        A#A-<FJJJ<JJJJJJJJJJJJJJJJJFJJJJFFJJFJJJAJJJJ-AJJJJJJJFFJJJJJJFFA-7<AJJJFFAJJJJJF<F--JJJJJJF-A-F7JJJJ
+
+        phred 33 because there is a #. 
+
+2. Generate a per nucleotide mean distribution for read1,read2,index1,and index2
+**** /projects/bgmp/iquesada/bioinfo/Bi622/Demultiplex/Assignment-the-first/part1.py **** 
+import gzip
+import argparse
+import bioinfo
+import matplotlib.pyplot as plt
+
+output: Histograms
+    R1_histogram.png
+    R2_histogram.png
+    R3_histogram.png
+    R4_histogram.png 
+
+    i. Generate a per base distribution 
+        argparse arguments: 
+            -f, file_name (fastq)
+            -l, read_length
+            -o, output (histogram)
+        generate an empty list: quality_score=[0]
+        with gzip.open(file_name, "rt") as fh: 
+            num_lines = 0
+            use a for loop: 
+                add one to counter
+                strip '\n'
+                if quality score line: 
+                   for base, char in enumerate(line): 
+                         quality_scores[base]+=bioinfo.convert_phred(char) 
+        # quality_scores is a list with the total sum of quality scores at each base position
+  
+    ii. average the quality scores at each position for all reads
+        num_records = int(num_lines/4) #number of records in the file
+        use a for loop: 
+            quality_scores[i] = quality_scores[i]/num_records #updates the quality_scores list with the avg quality score at each base position.
+
+    iii. generate histograms (one per file)
+        plt.bar(range(read_length), quality_scores)
+        plt.xlabel("Base Position")
+        plt.ylabel("Mean Quality Score")
+        plt.title("Mean qscore at each base")
+        plt.savefig(output)
+
+3. Used sbatch on Talapas to run all 4 files: /projects/bgmp/iquesada/bioinfo/Bi622/Demultiplex/Assignment-the-first/part1.sh
+    set variables for files so I could run sbatch one time.
+    
+        file1="/projects/bgmp/shared/2017_sequencing/1294_S1_L008_R1_001.fastq.gz"
+        file2="/projects/bgmp/shared/2017_sequencing/1294_S1_L008_R2_001.fastq.gz"
+        file3="/projects/bgmp/shared/2017_sequencing/1294_S1_L008_R3_001.fastq.gz"
+        file4="/projects/bgmp/shared/2017_sequencing/1294_S1_L008_R4_001.fastq.gz"
+
+        /usr/bin/time -v ./part1.py -f $file1 -l 101 -o R1_histogram
+        /usr/bin/time -v ./part1.py -f $file2 -l 8 -o R2_histogram
+        /usr/bin/time -v ./part1.py -f $file3 -l 8 -o R3_histogram
+        /usr/bin/time -v ./part1.py -f $file4 -l 101 -o R4_histogram
+
+4. cat slurm-23857.out 
+	Command being timed: "./part1.py -f /projects/bgmp/shared/2017_sequencing/1294_S1_L008_R1_001.fastq.gz -l 101 -o R1_histogram"
+	User time (seconds): 8273.13
+	System time (seconds): 3.00
+	Percent of CPU this job got: 99%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 2:18:37
+	.
+    .
+    .
+	Maximum resident set size (kbytes): 71240
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 0
+	Minor (reclaiming a frame) page faults: 111295
+	Voluntary context switches: 1192
+	Involuntary context switches: 2503
+	.
+    .
+    .
+	Page size (bytes): 4096
+	Exit status: 0
+	Command being timed: "./part1.py -f /projects/bgmp/shared/2017_sequencing/1294_S1_L008_R2_001.fastq.gz -l 8 -o R2_histogram"
+	User time (seconds): 1024.97
+	System time (seconds): 1.40
+	Percent of CPU this job got: 99%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 17:15.92
+	.
+    .
+    .
+	Maximum resident set size (kbytes): 65848
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 0
+	Minor (reclaiming a frame) page faults: 36312
+	Voluntary context switches: 1804
+	Involuntary context switches: 364
+	.
+    .
+    .
+	Page size (bytes): 4096
+	Exit status: 0
+	Command being timed: "./part1.py -f /projects/bgmp/shared/2017_sequencing/1294_S1_L008_R3_001.fastq.gz -l 8 -o R3_histogram"
+	User time (seconds): 1041.36
+	System time (seconds): 1.37
+	Percent of CPU this job got: 99%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 17:29.76
+    .
+    .
+    .
+	Maximum resident set size (kbytes): 65988
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 0
+	Minor (reclaiming a frame) page faults: 36240
+	Voluntary context switches: 1055
+	Involuntary context switches: 368
+	.
+    .
+    .
+	Page size (bytes): 4096
+	Exit status: 0
+	Command being timed: "./part1.py -f /projects/bgmp/shared/2017_sequencing/1294_S1_L008_R4_001.fastq.gz -l 101 -o R4_histogram"
+	User time (seconds): 7339.62
+	System time (seconds): 3.05
+	Percent of CPU this job got: 99%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 2:02:49
+	.
+    .
+    .
+	Maximum resident set size (kbytes): 67132
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 0
+	Minor (reclaiming a frame) page faults: 86704
+	Voluntary context switches: 1863
+	Involuntary context switches: 2225
+	.
+    .
+    .
+	Page size (bytes): 4096
+	Exit status: 0
