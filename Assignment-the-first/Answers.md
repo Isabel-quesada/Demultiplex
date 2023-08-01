@@ -12,10 +12,10 @@
 
 2. Per-base NT distribution
     i. Use markdown to insert your 4 histograms here.
-       ![https://github.com/Isabel-quesada/Demultiplex/blob/master/Assignment-the-first/R1_histogram.png](R1_histogram)
-       ![https://github.com/Isabel-quesada/Demultiplex/blob/master/Assignment-the-first/R2_histogram.png](R2_histogram)
-       ![https://github.com/Isabel-quesada/Demultiplex/blob/master/Assignment-the-first/R3_histogram.png](R3 histogram)
-       ![https://github.com/Isabel-quesada/Demultiplex/blob/master/Assignment-the-first/R4_histogram.png](R4 histogram)
+       ![R1 histogram](https://github.com/Isabel-quesada/Demultiplex/blob/master/Assignment-the-first/R1_histogram.png)
+       ![R2 histogram](https://github.com/Isabel-quesada/Demultiplex/blob/master/Assignment-the-first/R2_histogram.png)
+       ![R3 histogram](https://github.com/Isabel-quesada/Demultiplex/blob/master/Assignment-the-first/R3_histogram.png)
+       ![R4 histogram](https://github.com/Isabel-quesada/Demultiplex/blob/master/Assignment-the-first/R4_histogram.png)
    
    ii. Q30 is a good quality score cutoff for biological read pairs because the probability of an incorrect base is very low (1 in 1000).          The average quality scores per base position were higher than Q30. For index reads it might be better to use a lower quality score          cutoff, maybe around Q20. Since the length of index reads are only 8bp we do not need as low of a probability of an incorrect base          when compared to the biological reads. 
   iii. index1 (R2): 3976613
