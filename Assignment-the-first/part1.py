@@ -19,10 +19,9 @@ file_name = args.file_name
 read_length = args.read_length
 output = args.output
 
-quality_scores: list = [0]*read_length #generate an empty list
+quality_scores: list = [0]*read_length #generate a list of zeros. Number of elements is equal to the read_length
 
-
-# with gzip.open(file_name, mode='rt') as fh: 
+ 
 with gzip.open(file_name, "rt") as fh: 
     num_lines = 0
     for line in fh: 
