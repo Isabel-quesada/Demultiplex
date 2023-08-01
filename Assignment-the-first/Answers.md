@@ -20,10 +20,11 @@
    ii. Q30 is a good quality score cutoff for biological read pairs because the probability of an incorrect base is very low (1 in 1000). The average quality scores per base position          are higher than Q30. For index reads it might be better to use a lower quality score cutoff, maybe around Q20. Since the length of index reads are only 8bp we do not need as low        of a probability of an incorrect base when compared to the biological reads. 
 
   iii. 
-       - index1 (R2): 3976613
-         zcat /projects/bgmp/shared/2017_sequencing/1294_S1_L008_R2_001.fastq.gz | grep -A 1 ^"@" | grep -v ^"@" | grep -v ^"--" | grep -c "N"
-       - index2 (R3): 3328051
-         zcat /projects/bgmp/shared/2017_sequencing/1294_S1_L008_R3_001.fastq.gz | grep -A 1 ^"@" | grep -v ^"@" | grep -v ^"--" | grep -c "N"
+       `index1 (R2): 3976613
+         zcat /projects/bgmp/shared/2017_sequencing/1294_S1_L008_R2_001.fastq.gz | grep -A 1 ^"@" | grep -v ^"@" | grep -v ^"--" | grep -c "N"`
+         
+       `index2 (R3): 3328051
+         zcat /projects/bgmp/shared/2017_sequencing/1294_S1_L008_R3_001.fastq.gz | grep -A 1 ^"@" | grep -v ^"@" | grep -v ^"--" | grep -c "N"`
        
 ## Part 2
 1. Define the problem
