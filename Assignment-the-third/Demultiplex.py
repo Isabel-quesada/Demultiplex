@@ -25,17 +25,19 @@ file4 = args.file4
 # file3 = "/projects/bgmp/iquesada/bioinfo/Bi622/Demultiplex/TEST-input_FASTQ/test_R3.fastq"
 # file4 = "/projects/bgmp/iquesada/bioinfo/Bi622/Demultiplex/TEST-input_FASTQ/test_R4.fastq"
 
+#files to run
 # file1 = "/projects/bgmp/shared/2017_sequencing/1294_S1_L008_R1_001.fastq.gz"
 # file2 = "/projects/bgmp/shared/2017_sequencing/1294_S1_L008_R2_001.fastq.gz"
 # file3 = "/projects/bgmp/shared/2017_sequencing/1294_S1_L008_R3_001.fastq.gz"
 # file4 = "/projects/bgmp/shared/2017_sequencing/1294_S1_L008_R4_001.fastq.gz"
+
 #creating lists of empty strings to store one record in each file in the while True loop
 R1_rec = ["","","",""]
 R2_rec = ["","","",""]
 R3_rec = ["","","",""]
 R4_rec = ["","","",""]
 
-#initializing empty dictionaires to serve as a counter for number of occurances
+#initializing empty dictionaires to serve as a counter for number of occurrences
 matched_dict = {}
 hopped_dict = {}
 unknown_total = 0
@@ -51,8 +53,6 @@ with open(index_file, "r") as fh:
         line=line.strip()
         if i>1: 
             indexes.append(line.split('\t')[4])
-# counters:  
-# dictionaries = {index-pair: counter}? 
 
 def rev_comp(seq) -> str: 
     '''Returns the reverse compliment of the sequence line'''
@@ -96,13 +96,15 @@ with (gzip.open(file1, "rt") as R1, gzip.open(file2, "rt") as R2, gzip.open(file
         R3_rec[1] = R3.readline().strip()
         R3_rec[2] = R3.readline().strip()
         R3_rec[3] = R3.readline().strip()
-        index2_rev = rev_comp(R3_rec[1]).upper()
+        index2_rev = rev_comp(R3_rec[1]).upper() #setting this variable for readability
 
         R4_rec[0] = R4.readline().strip()
         R4_rec[1] = R4.readline().strip()
         R4_rec[2] = R4.readline().strip()
         R4_rec[3] = R4.readline().strip()
         R4_header = R4_rec[0]
+
+        #alternate way to readline(): 
         # r3_header = R3.readline().strip()
         # r3_seq = R3.readline().strip()
         # r3_plus = R3.readline().strip()
@@ -116,12 +118,12 @@ with (gzip.open(file1, "rt") as R1, gzip.open(file2, "rt") as R2, gzip.open(file
         new_header_R1 = R1_header + "_" + index1 + "-" + index2_rev
         new_header_R4 = R4_header + "_" + index1 + "-" + index2_rev
 
-        # checking for unknown
+        # checking for unknown and if the indexes are in the known index list
         if "N" in index1 or "N" in index2_rev or index1 not in indexes or index2_rev not in indexes:
             ur1.write(new_header_R1 + '\n' + R1_rec[1] + '\n' + R1_rec[2] + '\n' + R1_rec[3] + '\n')
             ur2.write(new_header_R4 + '\n' + R4_rec[1] + '\n' + R4_rec[2] + '\n' + R4_rec[3] + '\n')
             unknown_total+=1
-        # checking if indexes matched and if the index is in the dictionary
+        # checking if indexes matched
         elif index1==index2_rev: 
             output_files[index1][0].write(new_header_R1 + '\n' + R1_rec[1] + '\n' + R1_rec[2] + '\n' + R1_rec[3] + '\n')
             output_files[index1][1].write(new_header_R4 + '\n' + R1_rec[1] + '\n' + R1_rec[2] + '\n' + R1_rec[3] + '\n')
@@ -130,7 +132,6 @@ with (gzip.open(file1, "rt") as R1, gzip.open(file2, "rt") as R2, gzip.open(file
                 matched_dict[key]=1
             else: 
                 matched_dict[key]+=1
-
         # R2 and R3 are unmatched (index-hopped)
         elif index1 != index2_rev:
             hr1.write(new_header_R1 + '\n' + R1_rec[1] + '\n' + R1_rec[2] + '\n' + R1_rec[3] + '\n')
@@ -143,7 +144,7 @@ with (gzip.open(file1, "rt") as R1, gzip.open(file2, "rt") as R2, gzip.open(file
         else:
             raise Exception("Impossible") 
 
-        total_records+=1
+        total_records+=1 #counter for the number of records (samples)
         #re-set the lists back to empty strings
         R1_rec = ["","","",""]
         R2_rec = ["","","",""]
