@@ -176,3 +176,115 @@ output: Histograms
     .
 	Page size (bytes): 4096
 	Exit status: 0
+
+
+
+Demultiplexing and Index Swapping - Assignment the Third
+-------------------------------------------------------------
+08/11/2023
+
+'Demultiplex samples and sort them into the proper file. This code creates 52 files: 48 matched index files (2 per index, R1 and R2), 2 Unknown files (R1 and R2) and 2 index hopped files (R1 and R2). 
+
+QUALITY SCORE CUTOFF USED: Filtered out index sequences that contained N's. This was adequate for this data because the indexes used were unique. If there happened to be a mistake in base calling the odds of it causing the wrong index to be associated with a sample is very low. 
+
+report: 
+Percentage of reads from each sample
+Overall amount of index swapping
+Any figures/any other relevant data your code output
+
+----- Demultiplex.py (python script) -----
+import argparse
+- used this to generalize the code (did not specify the files) 
+- * Note: add an argument for quality score cutoff. This will be useful if I want to specify a specific cutoff depending on the indexes used. I need to incorporate the code for this in the while True loop. 
+
+import gzip
+- used to read zipped files
+
+* Note: I will change the known indexes from being stored in a list to a set. This will improve the efficiency while the code runs. The indexes being stored in a list did not impact my code too much since there were only 24 indexes. 
+
+def rev_comp(seq) -> str:
+'''Returns the reverse compliment of the sequence line and reverses the order of the sequence line'''
+- used on index 2 
+
+with (gzip.open(file1, "rt") as R1, gzip.open(file2, "rt") as R2, gzip.open(file3, "rt") as R3, gzip.open(file4, "rt") as R4): 
+    while True: 
+
+- loop through each file and store one record at a time in the lists generated outside the loop: R1_rec, R2_rec, R3_rec, and R4_rec.
+
+- created a new header for biological reads 1 and 2 to fit the requested format of header_index1-index2_rev
+
+- used conditional statements to sort the records into the proper file depending on if the indexes matched, were unknown (contain N or not in known indexes), or if the indexes hopped. 
+
+- I stored the counter for number of matched and hopped occurrences in a dictionary. 
+key: index (matched) or index1-index2_rev (hopped)
+value: number of occurrences 
+
+- The counters for unknown and the total number of records were stored as a variables.  
+
+*** EOF if "" ***
+
+sum the total number of occurrences (values in the dictionary) for each situation (matched and hopped) to use later when calculating the overall percentages. 
+
+
+I opened three files as "w" and looped through the the dictionaries(matched/hopped) to write to the file at each key:value pair. 
+matched_output.tsv
+hopped_output.tsv
+overall_output.tsv
+
+- matched and hopped tsv files include the index or index-pair, number of occurrences and the percentage of reads. This is a tab separated file. 
+
+- overall_output.tsv includes the overall percentages of matched, hopped, and unknown. 
+
+
+----- Demultiplex.sh (bash script) -----
+#!/bin/bash
+
+#SBATCH --account=bgmp
+#SBATCH --partition=compute
+#SBATCH --mail-user=iquesada@uoregon.edu
+#SBATCH --mail-type=ALL
+#SBATCH --cpus-per-task=1
+#SBATCH --mem=16GB
+
+conda activate bgmp_py311
+
+file1="/projects/bgmp/shared/2017_sequencing/1294_S1_L008_R1_001.fastq.gz"
+file2="/projects/bgmp/shared/2017_sequencing/1294_S1_L008_R2_001.fastq.gz"
+file3="/projects/bgmp/shared/2017_sequencing/1294_S1_L008_R3_001.fastq.gz"
+file4="/projects/bgmp/shared/2017_sequencing/1294_S1_L008_R4_001.fastq.gz"
+
+/usr/bin/time -v ./Demultiplex.py -f1 $file1 -f2 $file2 -f3 $file3 -f4 $file4
+
+
+-----------------------------------------------------------------------------
+
+iquesada@login3 Assignment-the-third]$ cat slurm-28521.out 
+	Command being timed: "./Demultiplex.py -f1 /projects/bgmp/shared/2017_sequencing/1294_S1_L008_R1_001.fastq.gz -f2 /projects/bgmp/shared/2017_sequencing/1294_S1_L008_R2_001.fastq.gz -f3 /projects/bgmp/shared/2017_sequencing/1294_S1_L008_R3_001.fastq.gz -f4 /projects/bgmp/shared/2017_sequencing/1294_S1_L008_R4_001.fastq.gz"
+	User time (seconds): 3374.29
+	System time (seconds): 57.79
+	Percent of CPU this job got: 64%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 1:28:29
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 247272
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 0
+	Minor (reclaiming a frame) page faults: 37762
+	Voluntary context switches: 59794
+	Involuntary context switches: 7915
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 0
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
+
+
+
+
+
+
