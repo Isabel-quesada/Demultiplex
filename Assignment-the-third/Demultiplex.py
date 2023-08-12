@@ -185,6 +185,6 @@ with open("overall_output.tsv", "w") as file:
     percent_matched = (total_matched/total_records)*100
     percent_hopped = (total_hopped/total_records)*100
     percent_unknown = (unknown_total/total_records)*100
-    file.write("Overall Amount" + "\n" + "Matched" + "\t" + str(percent_matched) + "%" + "\n" + "Hopped" + "\t" + str(percent_hopped) + "%" + "\n" + "Unknown" + "\t" + str(percent_unknown) + "%")
+    file.write("Type" + "\t" + "Number of Occurrences" + "\t" + "Overall Percentage" + "\n" + "Matched" + "\t" + str(total_matched) + "\t" + str(percent_matched) + "%" + "\n" + "Hopped" + "\t" + str(total_hopped) + "\t" + str(percent_hopped) + "%" + "\n" + "Unknown" + "\t" + str(unknown_total) + "\t" + str(percent_unknown) + "%")
 # with open("overall_output.tsv") as temp: 
 #     print(temp.read())
